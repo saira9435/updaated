@@ -1,0 +1,59 @@
+body {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background-color: #f8f9fa;
+}
+
+.container {
+  flex-direction: column;
+}
+
+.navbar-nav {
+  font-size: larger;
+}
+
+.nav-link:hover {
+  color: tomato;
+  transition: 0.5s;
+}
+
+.navbar-brand {
+  color: tomato;
+  font-size: x-large;
+  font-weight: bolder;
+  font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+
+}
+
+.search-container {
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.movie-card {
+  height: 100%;
+  transition: transform 0.2s;
+}
+
+.movie-card:hover {
+  transform: translateY(-5px);
+}
+
+.movie-poster {
+  height: 500px;
+  object-fit: cover;
+}
+
+footer {
+  margin-top: auto;
+}
+
+footer a {
+  color: #fff;
+  text-decoration: none;
+}
+
+footer a:hover {
+  color: #0d6efd;
+}

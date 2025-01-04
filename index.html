@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Movie Recommendations</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="css/style.css" rel="stylesheet">
+    <style>
+        /* Add any additional styles here */
+        .hidden {
+            display: none;
+        }
+
+        /* Center the title */
+        .title {
+            text-align: center;
+            margin-top: 20px;
+            margin-bottom: 10px;
+        }
+
+        .movie-description {
+            margin-left: 20px;
+            flex: 1; /* Make description section flexible */
+        }
+
+        .sidebar {
+            border-left: 1px solid #ddd;
+            padding-left: 20px;
+        }
+
+        .container-flex {
+            display: flex; /* Flex container for poster and description */
+            justify-content: space-between;
+        }
+
+        /* Fixed buttons styling */
+        #scrollDownBtn, #scrollUpBtn {
+            position: fixed;
+            right: 20px;
+            z-index: 1000;
+        }
+        #scrollDownBtn {
+            bottom: 20px;
+        }
+        #scrollUpBtn {
+            bottom: 70px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="title">Movie Recommendations</h1> <!-- Centered Title -->
+        <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+            <div class="container">
+                <div class="navbar-nav">
+                    <a class="nav-link active" href="#" onclick="showSection('home')">Home</a>
+                    <a class="nav-link" href="#" onclick="showSection('genres')">Genres</a>
+                    <a class="nav-link" href="#" onclick="showSection('topPicks')">Top Picks</a>
+                </div>
+            </div>
+        </nav>
+    </div>
+
+    <main class="container py-4">
+        <!-- Home Section -->
+        <div id="home" class="section">
+            <div class="search-container mb-4">
+                <input type="text" id="searchInput" class="form-control" placeholder="Search movies...">
+            </div>
+            <div id="movieGrid" class="row g-4">
+                <!-- Movies will be shown here -->
+            </div>
+            <div class="row">
+                <div class="col-md-8">
+                    <!-- Placeholder for movie poster -->
+                    <div id="moviePosterContainer">
+                        <img id="selectedMoviePoster" src="" alt="Selected Movie Poster" class="img-fluid" style="display: none;">
+                    </div>
+                </div>
+                <div class="col-md-4 sidebar">
+                    <h5 id="movieTitle">Select a movie to see details</h5>
+                    <p id="movieDescription">Description will appear here.</p>
+                    <p id="movieWatchTime">Watch time: </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Genres Section -->
+        <div id="genres" class="section hidden">
+            <h1 class="mb-4">Movie Genres</h1>
+            <div class="row">
+                <div class="col-md-4">
+                    <h5>Sci-Fi</h5>
+                    <p>Explore the future, space travel, and technology.</p>
+                </div>
+                <div class="col-md-4">
+                    <h5>Drama</h5>
+                    <p>Dive into character-driven stories that explore real-life themes.</p>
+                </div>
+                <div class="col-md-4">
+                    <h5>Action</h5>
+                    <p>Experience thrilling adventures with fast-paced sequences.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Top Picks Section -->
+        <div id="topPicks" class="section hidden">
+            <h1 class="mb-4">Top Picks for 2024</h1>
+            <div id="topPicksGrid" class="row g-4">
+                <!-- Top picks will be shown here -->
+            </div>
+        </div>
+    </main>
+
+    <!-- Scroll Buttons -->
+    <button id="scrollDownBtn" class="btn btn-primary" onclick="scrollToDetails()" style="display: none;">View Details</button>
+    <button id="scrollUpBtn" class="btn btn-secondary" onclick="scrollToTop()" style="display: none;">Go to Top</button>
+
+    <footer class="footer mt-auto py-3 bg-dark">
+        <div class="container text-center text-white">
+            <p>© 2024 Movie Recommendations. Contact: <a href="#" id="contactEmailLink">contact@movies.com</a></p>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script type="module" src="js/main.js"></script>
+    <script>
+        const SAMPLE_MOVIES = [
+            { id: 1, title: 'Inception', description: 'A thief who steals corporate secrets through dream-sharing technology.', poster: './Assets/inception.jpg', genre: 'Sci-Fi', watchTime: '2h 28m' },
+            { id: 2, title: 'The Shawshank Redemption', description: 'Two imprisoned men bond over a number of years.', poster: './Assets/ShawshankRedemptionMoviePoster.jpg', genre: 'Drama', watchTime: '2h 22m' },
+            { id: 3, title: 'The Dark Knight', description: 'Batman faces his greatest challenge against the Joker.', poster: './Assets/The_Dark_Knight.jpg', genre: 'Action', watchTime: '2h 32m' },
+            { id: 4, title: 'The Matrix', description: 'A computer hacker learns about the true nature of reality and his role in the war against its controllers.', poster: './Assets/the_matrix.jpg', genre: 'Sci-Fi', watchTime: '2h 16m' },
+            { id: 5, title: 'Parasite', description: 'A poor family schemes to become employed by a wealthy family and infiltrate their household.', poster: './Assets/parasite.jpg', genre: 'Thriller', watchTime: '2h 12m' },
+            { id: 6, title: 'Dune', description: 'A noble family becomes embroiled in a battle for the control of the galaxy\'s most valuable asset.', poster: './Assets/dune.jpg', genre: 'Sci-Fi', watchTime: '2h 35m' }
+        ];
+
+        function loadMovies() { return SAMPLE_MOVIES; }
+
+        function filterMovies(movies, searchTerm) {
+            return movies.filter(movie =>
+                movie.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                movie.description.toLowerCase().includes(searchTerm.toLowerCase())
+            );
+        }
+
+        function renderMovies(movies) {
+            const movieGrid = document.getElementById('movieGrid');
+            movieGrid.innerHTML = movies.map(movie => createMovieCard(movie)).join('');
+        }
+
+        function createMovieCard(movie) {
+            return `
+                <div class="col-md-4 mb-4" onclick="selectMovie(${movie.id})">
+                    <div class="card movie-card">
+                        <img src="${movie.poster}" class="card-img-top movie-poster" alt="${movie.title}">
+                        <div class="card-body">
+                            <h5 class="card-title">${movie.title}</h5>
+                            <span class="badge bg-primary mb-2">${movie.genre}</span>
+                            <p class="card-text">${movie.description}</p>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function initializeSearch() {
+            const searchInput = document.getElementById('searchInput');
+            searchInput.addEventListener('input', (e) => {
+                const searchTerm = e.target.value;
+                const movies = loadMovies();
+                const filteredMovies = filterMovies(movies, searchTerm);
+                renderMovies(filteredMovies);
+            });
+        }
+
+        function selectMovie(movieId) {
+            const movie = SAMPLE_MOVIES.find(m => m.id === movieId);
+            if (movie) {
+                document.getElementById('selectedMoviePoster').src = movie.poster;
+                document.getElementById('selectedMoviePoster').style.display = 'block';
+                document.getElementById('movieTitle').innerText = movie.title;
+                document.getElementById('movieDescription').innerText = movie.description;
+                document.getElementById('movieWatchTime').innerText = 'Watch time: ' + movie.watchTime;
+
+                document.getElementById('scrollDownBtn').style.display = 'block';
+            }
+        }
+
+        function showSection(section) {
+            const sections = document.querySelectorAll('.section');
+            sections.forEach(sec => sec.classList.add('hidden'));
+            document.getElementById(section).classList.remove('hidden');
+
+            if (section === 'home') {
+                const movies = loadMovies();
+                renderMovies(movies);
+                initializeSearch();
+            } else if (section === 'topPicks') {
+                renderTopPicks();
+            }
+        }
+
+        function renderTopPicks() {
+            const LATEST_MOVIES = [
+                { id: 1, title: 'Guardians of the Galaxy Vol. 3', description: 'The Guardians embark on a mission to protect the galaxy.', poster: './Assets/guardians_vol3.jpg', genre: 'Action', watchTime: '2h 30m' },
+                { id: 2, title: 'The Marvels', description: 'Carol Danvers, Kamala Khan, and Monica Rambeau team up to save the universe.', poster: './Assets/the_marvels.jpg', genre: 'Action', watchTime: '2h 6m' },
+                { id: 3, title: 'Mission: Impossible – Dead Reckoning Part One', description: 'Ethan Hunt and his IMF team embark on their most dangerous mission yet.', poster: './Assets/mission_impossible_dead_reckoning_part_one.jpg', genre: 'Action', watchTime: '2h 43m' }
+            ];
+
+            const topPicksGrid = document.getElementById('topPicksGrid');
+            topPicksGrid.innerHTML = LATEST_MOVIES.map(movie => createMovieCard(movie)).join('');
+        }
+
+        function scrollToDetails() {
+            const movieDetails = document.getElementById('moviePosterContainer');
+            movieDetails.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function scrollToTop() {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        window.addEventListener('scroll', () => {
+            const scrollUpBtn = document.getElementById('scrollUpBtn');
+            scrollUpBtn.style.display = window.scrollY > 200 ? 'block' : 'none';
+        });
+
+        document.addEventListener('DOMContentLoaded', () => {
+            showSection('home');
+        });
+    </script>
+</body>
+</html>
